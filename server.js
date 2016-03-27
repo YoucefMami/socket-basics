@@ -13,9 +13,15 @@ io.on('connection', function (socket) {
 	socket.on('message', function (message) {
 		console.log('Message received: ' + message.text);
 
-		// io.emit sends to everyone
 		// send to everyone but the one who emitted the message
-		socket.broadcast.emit('message', message);
+		//socket.broadcast.emit('message', message);
+
+		// io.emit sends the message to everyone
+		io.emit('message', message);
+	});
+
+	socket.emit('message', {
+		text: 'Welcome to the chat application'
 	});
 });
 
