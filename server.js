@@ -7,9 +7,21 @@ var moment = require('moment');
 
 app.use(express.static(__dirname + '/public'));
 
+var clientInfo = {};
+
 //Listen for events
 io.on('connection', function (socket) {
 	console.log('User connected via socket.io!');
+
+	socket.on('joinRoom', function (req) {
+		clientInfo[socket.id] = req;
+		socket.join(req.room);
+		socket.broadcast.to(req.room).emit('message', {
+			name: 'System',
+			text: req.name + ' has joined!',
+			timestamp: moment().valueOf()
+		});
+	});
 
 	socket.on('message', function (message) {
 		console.log('Message received: ' + message.text);
@@ -19,7 +31,9 @@ io.on('connection', function (socket) {
 		//socket.broadcast.emit('message', message);
 
 		// io.emit sends the message to everyone
-		io.emit('message', message);
+		//io.emit('message', message);
+		//to room name
+		io.to(clientInfo[socket.id].room).emit('message', message);
 	});
 
 	//var timestampMoment = moment.utc(timestamp).local().format('h:mm a');
