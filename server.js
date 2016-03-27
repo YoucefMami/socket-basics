@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var moment = require('moment');
 
 app.use(express.static(__dirname + '/public'));
 
@@ -13,6 +14,7 @@ io.on('connection', function (socket) {
 	socket.on('message', function (message) {
 		console.log('Message received: ' + message.text);
 
+		message.timestamp = moment().valueOf();
 		// send to everyone but the one who emitted the message
 		//socket.broadcast.emit('message', message);
 
@@ -20,7 +22,10 @@ io.on('connection', function (socket) {
 		io.emit('message', message);
 	});
 
+	//var timestampMoment = moment.utc(timestamp).local().format('h:mm a');
+
 	socket.emit('message', {
+		timestamp: moment().valueOf(),
 		text: 'Welcome to the chat application'
 	});
 });
